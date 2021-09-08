@@ -3,5 +3,7 @@
 ## Start App
 How to start the ChatBotApp
 
+### Backend Server
+Run `npm start` ./client file 
 ### Client Server
-run `npm start` ./server flie in the console
+Run `npm start` ./server file 
