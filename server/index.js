@@ -2,13 +2,14 @@ const express = require('express');
 const socketio = require('socket.io');
 const http = require('http');
 const router = require('./router.js');
-const cors = require('cors');
+// const cors = require('cors');
 const { addUser, getUser, removeUser, getUserInRoom } = require('./user.js');
 
 const PORT = 5000;
 
 const app = express();
 const server = http.createServer(app);
+// const io = socketio(server);
 const io = socketio(server, {
 	cors: {
 		origin: '*',
@@ -16,6 +17,9 @@ const io = socketio(server, {
 		credentials: true,
 	},
 });
+
+// app.use(cors());
+app.use(router); // calling the router as a middleware
 
 io.on('connect', (socket) => {
 	socket.on('join', ({ name, room }, callback) => {
@@ -29,9 +33,15 @@ io.on('connect', (socket) => {
 			user: 'Admin',
 			text: `${user.name}, Welcome to the ${user.room} chat!`,
 		});
+
 		socket.broadcast
 			.to(user.room)
 			.emit('message', { user: 'Admin', text: `${user.name} has joined!` });
+
+		io.to(user.room).emit('roomData', {
+			room: user.room,
+			users: getUserInRoom(user.room),
+		});
 
 		callback();
 	});
@@ -39,6 +49,7 @@ io.on('connect', (socket) => {
 	socket.on('sendMessage', (message, callback) => {
 		const user = getUser(socket.id);
 		io.to(user.room).emit('message', { user: user.name, text: message });
+
 		callback();
 	});
 
@@ -46,14 +57,18 @@ io.on('connect', (socket) => {
 		const user = removeUser(socket.id);
 
 		if (user) {
+			console.log(user);
+
 			io.to(user.room).emit('message', {
 				user: 'Admin',
 				text: `${user.name} has left.`,
 			});
+			io.to(user.room).emit('roomData', {
+				room: user.room,
+				users: getUsersInRoom(user.room),
+			});
 		}
 	});
 });
-
-app.use(router); // calling the router as a middleware
 
 server.listen(PORT, () => console.log(`Server has started on port ${PORT}`));

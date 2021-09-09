@@ -4,7 +4,7 @@ import Message from './Message/Message.js';
 import './Messages.css';
 
 const Messages = ({ messages, name }) => (
-	<ScrollableFeed>
+	<ScrollableFeed className='messages'>
 		{messages.map((message, idx) => (
 			<div key={idx}>
 				<Message message={message} name={name} />

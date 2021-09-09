@@ -21,16 +21,16 @@ const removeUser = (id) => {
 	if (index !== -1) return users.splice(index, -1)[0];
 };
 
-// const getUser = (id) => users.find((user) => user.id === id);
-const getUser = (id) => {
-	const index = users.find((user) => user.id === id);
+const getUser = (id) => users.find((user) => user.id === id);
+// const getUser = (id) => {
+// 	const index = users.find((user) => user.id === id);
 
-	console.log(index);
+// 	console.log(index);
 
-	if (index) {
-		return index;
-	}
-};
+// 	if (index) {
+// 		return index;
+// 	}
+// };
 
 const getUserInRoom = (room) => users.filter((user) => user.room === room);
 

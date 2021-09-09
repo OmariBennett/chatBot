@@ -4,6 +4,7 @@ import io from 'socket.io-client';
 import InfoBar from '../InfoBar/InfoBar.js';
 import Input from '../Input/Input.js';
 import Messages from '../Messages/Messages.js';
+import TextContainer from '../TextContainer/TextContainer.js';
 
 import './Chat.css';
 
@@ -15,6 +16,7 @@ const Chat = ({ location }) => {
 	const [room, setRoom] = useState('');
 	const [message, setMessage] = useState('');
 	const [messages, setMessages] = useState([]);
+	const [users, setUsers] = useState('');
 
 	useEffect(() => {
 		const { name, room } = queryString.parse(location.search);
@@ -23,19 +25,25 @@ const Chat = ({ location }) => {
 		setName(name);
 		setRoom(room);
 
-		socket.emit('join', { name, room }, () => {});
+		socket.emit('join', { name, room }, (error) => {
+			if (error) alert(error);
+		});
 
-		return () => {
-			socket.emit('disconnect');
-			// socket.off();
-			socket.disconnect();
-		};
+		// return () => {
+		// 	socket.emit('disconnect');
+		// 	// socket.off();
+		// 	socket.disconnect();
+		// };
 	}, [ENDPOINT, location.search]);
 
 	// Handle messages
 	useEffect(() => {
 		socket.on('message', (message) => {
 			setMessages((messages) => [...messages, message]);
+		});
+
+		socket.on('roomData', ({ users }) => {
+			setUsers(users);
 		});
 	}, []);
 
@@ -52,20 +60,13 @@ const Chat = ({ location }) => {
 			<div className='container'>
 				<InfoBar room={room} />
 				<Messages messages={messages} name={name} />
-				{/* <Input
+				<Input
 					message={message}
 					setMessage={setMessage}
 					sendMessage={sendMessage}
-				/> */}
-				<input
-					className='input'
-					type='text'
-					placeholder='Type  a message...'
-					value={message}
-					onChange={(e) => setMessage(e.target.value)}
-					onKeyPress={(e) => (e.key === 'Enter' ? sendMessage(e) : null)}
 				/>
 			</div>
+			<TextContainer users={users} />
 		</div>
 	);
 };
