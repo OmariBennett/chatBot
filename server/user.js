@@ -8,7 +8,7 @@ const addUser = ({ id, name, room }) => {
 		(user) => user.room === room && user.name === name,
 	);
 
-	if (existingUser) return { error: 'Username is taken!' };
+	if (existingUser) return { error: 'Username is taken.' };
 
 	const user = { id, name, room };
 	users.push(user);
@@ -21,7 +21,16 @@ const removeUser = (id) => {
 	if (index !== -1) return users.splice(index, -1)[0];
 };
 
-const getUser = (id) => users.find((user) => user.id === id);
+// const getUser = (id) => users.find((user) => user.id === id);
+const getUser = (id) => {
+	const index = users.find((user) => user.id === id);
+
+	console.log(index);
+
+	if (index) {
+		return index;
+	}
+};
 
 const getUserInRoom = (room) => users.filter((user) => user.room === room);
 

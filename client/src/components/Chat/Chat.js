@@ -3,17 +3,18 @@ import queryString from 'query-string';
 import io from 'socket.io-client';
 import InfoBar from '../InfoBar/InfoBar.js';
 import Input from '../Input/Input.js';
+import Messages from '../Messages/Messages.js';
 
 import './Chat.css';
 
 let socket;
+const ENDPOINT = 'http://localhost:5000/';
 
 const Chat = ({ location }) => {
 	const [name, setName] = useState('');
 	const [room, setRoom] = useState('');
 	const [message, setMessage] = useState('');
 	const [messages, setMessages] = useState([]);
-	const ENDPOINT = 'http://localhost:5000/';
 
 	useEffect(() => {
 		const { name, room } = queryString.parse(location.search);
@@ -26,17 +27,20 @@ const Chat = ({ location }) => {
 
 		return () => {
 			socket.emit('disconnect');
-			socket.off();
+			// socket.off();
+			socket.disconnect();
 		};
 	}, [ENDPOINT, location.search]);
 
+	// Handle messages
 	useEffect(() => {
-		socket.on('message', (message) => setMessages([...messages, message]));
-	}, [messages]);
+		socket.on('message', (message) => {
+			setMessages((messages) => [...messages, message]);
+		});
+	}, []);
 
 	const sendMessage = (e) => {
 		e.preventDefault();
-
 		if (message) {
 			socket.emit('sendMessage', message, () => setMessage(''));
 		}
@@ -47,11 +51,19 @@ const Chat = ({ location }) => {
 		<div className='outerContainer'>
 			<div className='container'>
 				<InfoBar room={room} />
-
-				<Input
+				<Messages messages={messages} name={name} />
+				{/* <Input
 					message={message}
 					setMessage={setMessage}
 					sendMessage={sendMessage}
+				/> */}
+				<input
+					className='input'
+					type='text'
+					placeholder='Type  a message...'
+					value={message}
+					onChange={(e) => setMessage(e.target.value)}
+					onKeyPress={(e) => (e.key === 'Enter' ? sendMessage(e) : null)}
 				/>
 			</div>
 		</div>
